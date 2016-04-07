@@ -334,21 +334,24 @@ func (conn *Connection) SelectDB(dbName string, auth Auth) *Database {
 
 //Compact the current database.
 func (db *Database) Compact() (resp string, e error) {
-	url, err := buildUrl(db.dbName, "_compact")
-	fmt.Println(url)
+	url, err := buildUrl(db.dbName, "_compact")	
 	if err != nil {
 		return "", err
 	}
 
 	var headers = make(map[string]string)
 	headers["Accept"] = "application/json"
-    headers["Content-Type"] = "application/json"
+	headers["Content-Type"] = "application/json"
 
 	emtpyBody := ""
 
-	dbResponse, err := db.connection.request("POST", url, strings.NewReader(emtpyBody), headers, db.auth)
-    defer dbResponse.Body.Close()
-    
+	dbResponse, err := db.connection.request("POST", url, strings.NewReader(emtpyBody), headers, db.auth)	
+	if err != nil {
+		return "", err
+	}
+       
+	defer dbResponse.Body.Close()
+
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(dbResponse.Body)
 	strResp := buf.String()
